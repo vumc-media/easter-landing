@@ -44,7 +44,7 @@ body{
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  padding:40px 20px;
+  padding:30px 20px;
 }
 
 /* TITLE */
@@ -62,21 +62,13 @@ body{
   font-size:18px;
   max-width:650px;
   line-height:1.6;
-  margin-bottom:30px;
+  margin-bottom:25px;
   opacity:.9;
-}
-
-/* MOBILE DATE */
-.mobile-date{
-  display:none;
-  font-size:18px;
-  font-weight:700;
-  margin-top:15px;
 }
 
 /* BUTTONS */
 .btn-group{
-  margin-top:30px;
+  margin-top:25px;
   display:flex;
   gap:15px;
   flex-wrap:wrap;
@@ -101,25 +93,115 @@ body{
   color:white;
 }
 
-/* 🔴 LIVE MODE */
-.live{
-  font-size:22px;
-  font-weight:900;
-  color:#ff3b3b;
-  margin-top:20px;
-  display:none;
+/* COUNTDOWN */
+#vumc-worship-countdown{
+  width:100%;
+  text-align:center;
+  padding:8px 0;
 }
 
-/* 📱 MOBILE RULES */
+.wc-service{
+  font-size:22px;
+  margin-bottom:12px;
+  font-weight:800;
+}
+
+.wc-timer{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.wc-box{
+  background:rgba(255,255,255,.92);
+  color:#000;
+  min-width:90px;
+  padding:14px 10px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,.28);
+  animation:fadeUp 1s ease forwards;
+}
+
+.wc-box span{
+  display:block;
+  font-size:34px;
+  font-weight:900;
+}
+
+.wc-box small{
+  font-size:11px;
+  font-weight:700;
+}
+
+.wc-datetime{
+  margin-top:10px;
+  font-size:14px;
+}
+
+/* LIVE BUTTON */
+.wc-live-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  background:#fff;
+  color:#000;
+  padding:12px 22px;
+  border-radius:999px;
+  font-weight:900;
+  text-decoration:none;
+  border:2px solid #d4af37;
+  animation:livePulse 1.6s infinite ease-in-out;
+}
+
+.wc-live-dot{
+  width:10px;
+  height:10px;
+  background:red;
+  border-radius:50%;
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+@keyframes livePulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.05);}
+  100%{transform:scale(1);}
+}
+
+/* 📱 MOBILE OPTIMIZATION */
 @media (max-width:600px){
 
-  #vumc-worship-countdown{
-    display:none !important;
+  .wc-service{
+    font-size:16px;
   }
 
-  .mobile-date{
-    display:block;
+  .wc-box{
+    min-width:60px;
+    padding:8px 6px;
   }
+
+  .wc-box span{
+    font-size:20px;
+  }
+
+  .wc-box small{
+    font-size:9px;
+  }
+
+  .wc-datetime{
+    font-size:12px;
+  }
+
+  /* hide DAYS for mobile */
+  .wc-box:first-child{
+    display:none;
+  }
+
 }
 </style>
 </head>
@@ -128,7 +210,7 @@ body{
 
 <!-- 🎥 VIDEO -->
 <video class="video-bg" autoplay muted loop playsinline>
-  <source src="media/Easter Loop.mp4" type="video/mp4">
+  <source src="media/easter-loop.mp4" type="video/mp4">
 </video>
 
 <div class="overlay"></div>
@@ -142,24 +224,49 @@ body{
     Hope is rising. Life is breaking through.
   </div>
 
-  <!-- 🔴 LIVE TEXT -->
-  <div id="liveText" class="live">
-    🔴 LIVE NOW — Join Us
-  </div>
+  <!-- COUNTDOWN -->
+  <div id="vumc-worship-countdown">
 
-  <!-- ⏳ COUNTDOWN (DESKTOP ONLY) -->
-  <div id="countdownWrap">
-    :contentReference[oaicite:0]{index=0}
-  </div>
+    <div class="wc-service" id="wc-service-label">
+      Easter Worship Begins In
+    </div>
 
-  <!-- 📱 MOBILE DATE -->
-  <div class="mobile-date">
-    Sunday, April 5, 2026 • 10:30 AM
+    <a id="wc-live-button"
+       class="wc-live-btn"
+       href="https://live.versaillesumc.org"
+       target="_blank"
+       style="display:none;">
+       <span class="wc-live-dot"></span>
+       LIVE — WATCH NOW
+    </a>
+
+    <div class="wc-timer" id="wc-timer">
+      <div class="wc-box">
+        <span id="wc-days">0</span>
+        <small>DAYS</small>
+      </div>
+      <div class="wc-box">
+        <span id="wc-hours">0</span>
+        <small>HOURS</small>
+      </div>
+      <div class="wc-box">
+        <span id="wc-minutes">0</span>
+        <small>MINUTES</small>
+      </div>
+      <div class="wc-box">
+        <span id="wc-seconds">0</span>
+        <small>SECONDS</small>
+      </div>
+    </div>
+
+    <div class="wc-datetime">
+      Sunday April 5, 2026 • 10:30 AM
+    </div>
+
   </div>
 
   <!-- BUTTONS -->
   <div class="btn-group">
-
     <a href="https://www.versaillesumc.org/plan-visit-form" class="btn btn-primary">
       Plan Your Visit
     </a>
@@ -167,7 +274,6 @@ body{
     <a href="https://www.versaillesumc.org" class="btn btn-outline">
       Visit Church Website
     </a>
-
   </div>
 
 </div>
@@ -175,44 +281,66 @@ body{
 <script>
 (function(){
 
-const TZ = "America/New_York";
-const liveText = document.getElementById("liveText");
-const countdownWrap = document.getElementById("countdownWrap");
+const TZ="America/New_York";
+
+const d=document.getElementById("wc-days");
+const h=document.getElementById("wc-hours");
+const m=document.getElementById("wc-minutes");
+const s=document.getElementById("wc-seconds");
+
+const label=document.getElementById("wc-service-label");
+const timer=document.getElementById("wc-timer");
+const live=document.getElementById("wc-live-button");
 
 function parts(date){
-  const p = new Intl.DateTimeFormat("en-US", {
-    timeZone: TZ,
-    hour: "numeric",
-    minute: "numeric",
-    weekday: "short"
-  }).formatToParts(date);
-
-  const m = {};
-  p.forEach(x => { if (x.type !== "literal") m[x.type] = x.value });
-
-  return {
-    h:+m.hour,
-    mi:+m.minute,
-    w:m.weekday
-  };
+  const p=new Intl.DateTimeFormat("en-US",{timeZone:TZ,weekday:"short",hour:"numeric",minute:"numeric",hour12:false}).formatToParts(date);
+  const o={}; p.forEach(x=>{if(x.type!=="literal")o[x.type]=x.value});
+  return{w:o.weekday,h:+o.hour,mi:+o.minute};
 }
 
-function checkLive(){
-  const now = new Date();
-  const z = parts(now);
+function nextTarget(){
+  const now=new Date();
+  const z=parts(now);
+  const mins=z.h*60+z.mi;
 
-  const mins = z.h * 60 + z.mi;
-  const start = 10*60 + 30;
-  const end = 12*60;
+  const start=10*60+30;
+  const end=12*60;
 
-  if(z.w === "Sun" && mins >= start && mins < end){
-    liveText.style.display = "block";
-    countdownWrap.style.display = "none";
+  if(z.w==="Sun" && mins>=start && mins<end){
+    return "live";
   }
+
+  const target=new Date();
+  target.setHours(10,30,0,0);
+
+  if(now > target){
+    target.setDate(target.getDate()+((7-target.getDay()+0)%7));
+  }
+
+  return target;
 }
 
-checkLive();
-setInterval(checkLive, 30000);
+function tick(){
+  const t=nextTarget();
+
+  if(t==="live"){
+    label.innerHTML="🔴 LIVE NOW — Join Us";
+    timer.style.display="none";
+    live.style.display="inline-flex";
+    return;
+  }
+
+  const diff=t-new Date();
+  const total=Math.max(0,Math.floor(diff/1000));
+
+  d.textContent=Math.floor(total/86400);
+  h.textContent=String(Math.floor((total%86400)/3600)).padStart(2,"0");
+  m.textContent=String(Math.floor((total%3600)/60)).padStart(2,"0");
+  s.textContent=String(total%60).padStart(2,"0");
+}
+
+tick();
+setInterval(tick,1000);
 
 })();
 </script>
