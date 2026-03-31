@@ -12,7 +12,10 @@ body{
   font-family:Arial, Helvetica, sans-serif;
   color:white;
   text-align:center;
-  overflow:hidden;
+
+  /* 🔥 FALLBACK IMAGE */
+  background: url('media/Easter-Sunday.jpg') no-repeat center center fixed;
+  background-size: cover;
 }
 
 /* 🎥 VIDEO BACKGROUND */
@@ -24,6 +27,7 @@ body{
   height:100%;
   object-fit:cover;
   z-index:-2;
+  pointer-events:none;
 }
 
 /* DARK OVERLAY */
@@ -33,7 +37,7 @@ body{
   left:0;
   width:100%;
   height:100%;
-  background:linear-gradient(to bottom, rgba(0,0,0,.75), rgba(0,0,0,.9));
+  background:linear-gradient(to bottom, rgba(0,0,0,.7), rgba(0,0,0,.9));
   z-index:-1;
 }
 
@@ -136,7 +140,8 @@ body{
 
 .wc-datetime{
   margin-top:10px;
-  font-size:14px;
+  font-size:16px;
+  font-weight:600;
 }
 
 /* LIVE BUTTON */
@@ -194,7 +199,7 @@ body{
   }
 
   .wc-datetime{
-    font-size:12px;
+    font-size:13px;
   }
 
   /* hide DAYS for mobile */
@@ -210,7 +215,7 @@ body{
 
 <!-- 🎥 VIDEO -->
 <video class="video-bg" autoplay muted loop playsinline>
-  <source src="media/easter-loop.mp4" type="video/mp4">
+  <source src="media/Easter-Loop.mp4" type="video/mp4">
 </video>
 
 <div class="overlay"></div>
@@ -292,51 +297,51 @@ const label=document.getElementById("wc-service-label");
 const timer=document.getElementById("wc-timer");
 const live=document.getElementById("wc-live-button");
 
-function parts(date){
-  const p=new Intl.DateTimeFormat("en-US",{timeZone:TZ,weekday:"short",hour:"numeric",minute:"numeric",hour12:false}).formatToParts(date);
-  const o={}; p.forEach(x=>{if(x.type!=="literal")o[x.type]=x.value});
-  return{w:o.weekday,h:+o.hour,mi:+o.minute};
+function getNow(){
+  return new Date();
 }
 
-function nextTarget(){
-  const now=new Date();
-  const z=parts(now);
-  const mins=z.h*60+z.mi;
+function getNextService(){
+  const now = getNow();
+  const target = new Date();
 
-  const start=10*60+30;
-  const end=12*60;
-
-  if(z.w==="Sun" && mins>=start && mins<end){
-    return "live";
-  }
-
-  const target=new Date();
   target.setHours(10,30,0,0);
 
-  if(now > target){
-    target.setDate(target.getDate()+((7-target.getDay()+0)%7));
+  if(now.getDay() !== 0 || now > target){
+    target.setDate(target.getDate() + ((7 - now.getDay()) % 7 || 7));
   }
 
   return target;
 }
 
-function tick(){
-  const t=nextTarget();
+function isLive(){
+  const now = getNow();
+  const start = new Date();
+  start.setHours(10,30,0,0);
 
-  if(t==="live"){
+  const end = new Date();
+  end.setHours(12,0,0,0);
+
+  return now.getDay() === 0 && now >= start && now < end;
+}
+
+function tick(){
+
+  if(isLive()){
     label.innerHTML="🔴 LIVE NOW — Join Us";
     timer.style.display="none";
     live.style.display="inline-flex";
     return;
   }
 
-  const diff=t-new Date();
-  const total=Math.max(0,Math.floor(diff/1000));
+  const target = getNextService();
+  const diff = target - new Date();
+  const total = Math.max(0, Math.floor(diff/1000));
 
-  d.textContent=Math.floor(total/86400);
-  h.textContent=String(Math.floor((total%86400)/3600)).padStart(2,"0");
-  m.textContent=String(Math.floor((total%3600)/60)).padStart(2,"0");
-  s.textContent=String(total%60).padStart(2,"0");
+  d.textContent = Math.floor(total/86400);
+  h.textContent = String(Math.floor((total%86400)/3600)).padStart(2,"0");
+  m.textContent = String(Math.floor((total%3600)/60)).padStart(2,"0");
+  s.textContent = String(total%60).padStart(2,"0");
 }
 
 tick();
