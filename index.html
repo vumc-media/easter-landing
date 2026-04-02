@@ -12,21 +12,10 @@ body{
   font-family:Arial, Helvetica, sans-serif;
   color:white;
   text-align:center;
-  overflow:hidden;
+  background: url('media/Easter-Sunday.jpg') no-repeat center center fixed;
+  background-size: cover;
 }
 
-/* 🎥 VIDEO BACKGROUND */
-.video-bg{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  z-index:-2;
-}
-
-/* DARK OVERLAY */
 .overlay{
   position:fixed;
   top:0;
@@ -37,7 +26,6 @@ body{
   z-index:-1;
 }
 
-/* CONTENT */
 .container{
   min-height:100vh;
   display:flex;
@@ -47,7 +35,6 @@ body{
   padding:30px 20px;
 }
 
-/* TITLE */
 .title{
   font-size: clamp(42px, 7vw, 80px);
   font-weight:900;
@@ -57,7 +44,6 @@ body{
   text-shadow:0 6px 20px rgba(0,0,0,.9);
 }
 
-/* SUBTEXT */
 .subtitle{
   font-size:18px;
   max-width:650px;
@@ -66,13 +52,11 @@ body{
   opacity:.9;
 }
 
-/* BUTTONS */
 .btn-group{
   margin-top:25px;
   display:flex;
-  gap:15px;
-  flex-wrap:wrap;
   justify-content:center;
+  align-items:center;
 }
 
 .btn{
@@ -88,12 +72,6 @@ body{
   color:black;
 }
 
-.btn-outline{
-  border:2px solid white;
-  color:white;
-}
-
-/* COUNTDOWN */
 #vumc-worship-countdown{
   width:100%;
   text-align:center;
@@ -137,9 +115,9 @@ body{
 .wc-datetime{
   margin-top:10px;
   font-size:14px;
+  font-weight:600;
 }
 
-/* LIVE BUTTON */
 .wc-live-btn{
   display:inline-flex;
   align-items:center;
@@ -161,7 +139,6 @@ body{
   border-radius:50%;
 }
 
-/* ANIMATIONS */
 @keyframes fadeUp{
   from{opacity:0; transform:translateY(10px);}
   to{opacity:1; transform:translateY(0);}
@@ -173,9 +150,7 @@ body{
   100%{transform:scale(1);}
 }
 
-/* 📱 MOBILE OPTIMIZATION */
 @media (max-width:600px){
-
   .wc-service{
     font-size:16px;
   }
@@ -197,21 +172,14 @@ body{
     font-size:12px;
   }
 
-  /* hide DAYS for mobile */
   .wc-box:first-child{
     display:none;
   }
-
 }
 </style>
 </head>
 
 <body>
-
-<!-- 🎥 VIDEO -->
-<video class="video-bg" autoplay muted loop playsinline>
-  <source src="media/Easter-Sunday.jpg" type="video/mp4">
-</video>
 
 <div class="overlay"></div>
 
@@ -224,9 +192,7 @@ body{
     Hope is rising. Life is breaking through.
   </div>
 
-  <!-- COUNTDOWN -->
   <div id="vumc-worship-countdown">
-
     <div class="wc-service" id="wc-service-label">
       Easter Worship Begins In
     </div>
@@ -235,6 +201,7 @@ body{
        class="wc-live-btn"
        href="https://live.versaillesumc.org"
        target="_blank"
+       rel="noopener"
        style="display:none;">
        <span class="wc-live-dot"></span>
        LIVE — WATCH NOW
@@ -262,86 +229,135 @@ body{
     <div class="wc-datetime">
       Sunday April 5, 2026 • 10:30 AM
     </div>
-
   </div>
 
-  <!-- BUTTONS -->
   <div class="btn-group">
-    <a href="https://www.versaillesumc.org/plan-visit-form" class="btn btn-primary">
+    <a href="https://www.versaillesumc.org/plan-your-visit-easter" class="btn btn-primary">
       Plan Your Visit
-    </a>
-
-    <a href="https://www.versaillesumc.org" class="btn btn-outline">
-      Visit Church Website
     </a>
   </div>
 
 </div>
 
 <script>
-(function(){
+(function () {
+  const TZ = "America/New_York";
 
-const TZ="America/New_York";
+  const d = document.getElementById("wc-days");
+  const h = document.getElementById("wc-hours");
+  const m = document.getElementById("wc-minutes");
+  const s = document.getElementById("wc-seconds");
 
-const d=document.getElementById("wc-days");
-const h=document.getElementById("wc-hours");
-const m=document.getElementById("wc-minutes");
-const s=document.getElementById("wc-seconds");
+  const label = document.getElementById("wc-service-label");
+  const timer = document.getElementById("wc-timer");
+  const live = document.getElementById("wc-live-button");
 
-const label=document.getElementById("wc-service-label");
-const timer=document.getElementById("wc-timer");
-const live=document.getElementById("wc-live-button");
+  function parts(date) {
+    const p = new Intl.DateTimeFormat("en-US", {
+      timeZone: TZ,
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: false,
+      weekday: "short"
+    }).formatToParts(date);
 
-function parts(date){
-  const p=new Intl.DateTimeFormat("en-US",{timeZone:TZ,weekday:"short",hour:"numeric",minute:"numeric",hour12:false}).formatToParts(date);
-  const o={}; p.forEach(x=>{if(x.type!=="literal")o[x.type]=x.value});
-  return{w:o.weekday,h:+o.hour,mi:+o.minute};
-}
+    const o = {};
+    p.forEach(x => {
+      if (x.type !== "literal") o[x.type] = x.value;
+    });
 
-function nextTarget(){
-  const now=new Date();
-  const z=parts(now);
-  const mins=z.h*60+z.mi;
-
-  const start=10*60+30;
-  const end=12*60;
-
-  if(z.w==="Sun" && mins>=start && mins<end){
-    return "live";
+    return {
+      y: +o.year,
+      mo: +o.month,
+      d: +o.day,
+      h: +o.hour,
+      mi: +o.minute,
+      s: +o.second,
+      w: o.weekday
+    };
   }
 
-  const target=new Date();
-  target.setHours(10,30,0,0);
-
-  if(now > target){
-    target.setDate(target.getDate()+((7-target.getDay()+0)%7));
+  function zonedUTC(y, mo, d, h, mi, s) {
+    const guess = new Date(Date.UTC(y, mo - 1, d, h, mi, s));
+    const z = parts(guess);
+    const shown = Date.UTC(z.y, z.mo - 1, z.d, z.h, z.mi, z.s);
+    const want = Date.UTC(y, mo - 1, d, h, mi, s);
+    return new Date(guess.getTime() + (want - shown));
   }
 
-  return target;
-}
-
-function tick(){
-  const t=nextTarget();
-
-  if(t==="live"){
-    label.innerHTML="🔴 LIVE NOW — Join Us";
-    timer.style.display="none";
-    live.style.display="inline-flex";
-    return;
+  function addDays(y, mo, d, amount) {
+    const dt = new Date(Date.UTC(y, mo - 1, d + amount));
+    return {
+      y: dt.getUTCFullYear(),
+      mo: dt.getUTCMonth() + 1,
+      d: dt.getUTCDate()
+    };
   }
 
-  const diff=t-new Date();
-  const total=Math.max(0,Math.floor(diff/1000));
+  function state() {
+    const now = new Date();
+    const z = parts(now);
+    const mins = z.h * 60 + z.mi;
 
-  d.textContent=Math.floor(total/86400);
-  h.textContent=String(Math.floor((total%86400)/3600)).padStart(2,"0");
-  m.textContent=String(Math.floor((total%3600)/60)).padStart(2,"0");
-  s.textContent=String(total%60).padStart(2,"0");
-}
+    const serviceStart = 10 * 60 + 30;
+    const liveEnd = 12 * 60;
 
-tick();
-setInterval(tick,1000);
+    if (z.w === "Sun") {
+      if (mins < serviceStart) {
+        return {
+          mode: "count",
+          target: zonedUTC(z.y, z.mo, z.d, 10, 30, 0)
+        };
+      }
 
+      if (mins >= serviceStart && mins < liveEnd) {
+        return {
+          mode: "live"
+        };
+      }
+    }
+
+    const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+    let daysUntilSunday = (7 - map[z.w]) % 7;
+    if (daysUntilSunday === 0) daysUntilSunday = 7;
+
+    const next = addDays(z.y, z.mo, z.d, daysUntilSunday);
+
+    return {
+      mode: "count",
+      target: zonedUTC(next.y, next.mo, next.d, 10, 30, 0)
+    };
+  }
+
+  function tick() {
+    const st = state();
+
+    if (st.mode === "live") {
+      label.innerHTML = "🔴 LIVE NOW — Join Us";
+      timer.style.display = "none";
+      live.style.display = "inline-flex";
+      return;
+    }
+
+    label.textContent = "Easter Worship Begins In";
+    timer.style.display = "flex";
+    live.style.display = "none";
+
+    const diff = st.target - new Date();
+    const total = Math.max(0, Math.floor(diff / 1000));
+
+    d.textContent = Math.floor(total / 86400);
+    h.textContent = String(Math.floor((total % 86400) / 3600)).padStart(2, "0");
+    m.textContent = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
+    s.textContent = String(total % 60).padStart(2, "0");
+  }
+
+  tick();
+  setInterval(tick, 1000);
 })();
 </script>
 
